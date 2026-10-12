@@ -1,37 +1,52 @@
-name: Build Winlator Scroll APK
+name: Winlator 11.2 audited test build
 on:
   workflow_dispatch:
+    inputs:
+      device_tests:
+        description: Run on a dedicated ARM64 Android test runner (user 0, clean test package)
+        type: boolean
+        default: false
   push:
     paths:
       - 'patch_winlator.py'
+      - 'scripts/**'
+      - 'overlay/**'
+      - 'tests/**'
       - '.github/workflows/build-apk.yml'
+  pull_request:
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 75
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [scroll, baseline]
     steps:
       - uses: actions/checkout@v4
-      - name: Get pinned Winlator 11.2 app sources
+      - name: Python and QEMU prerequisites
+        run: |
+          python3 -m pip install zstandard==0.25.0
+          sudo apt-get update -qq
+          sudo apt-get install -y qemu-user
+          mkdir -p reports
+      - name: Test binary relocation and tar metadata
+        run: python3 -m unittest discover -s tests -v
+      - name: Fetch pinned official 11.2 sources
         run: |
           git clone https://github.com/brunodev85/winlator-app.git upstream-app
-          cd upstream-app
-          git checkout c2f4ad4534f4637b543a9a3b085e28f50cf6d01c
-      - name: Apply experimental patch
-        run: python3 patch_winlator.py upstream-app
-      - name: Use separate application ID
+          git -C upstream-app checkout 3981d86efa4f333b2a34a7da8b6521476cd8c8b9
+          test "$(git -C upstream-app rev-parse HEAD)" = 3981d86efa4f333b2a34a7da8b6521476cd8c8b9
+      - name: Apply shared runtime isolation and startup diagnostics
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('upstream-app/app/build.gradle')
-          s=p.read_text()
-          needle="        debug {\n"
-          assert s.count(needle)==1
-          s=s.replace(needle,needle+"            applicationIdSuffix '.scrolltest2'\n",1)
-          anchor="    ndkVersion '24.0.8215888'"
-          assert s.count(anchor)==1
-          s=s.replace(anchor,"    packagingOptions {\n        pickFirst '**/*.so'\n    }\n\n"+anchor,1)
-          p.write_text(s)
-          PY
+          python3 scripts/relocate.py upstream-app --variant ${{ matrix.variant }} --report reports/relocation.json
+          python3 scripts/diagnostics.py upstream-app
+          if [ '${{ matrix.variant }}' = scroll ]; then python3 patch_winlator.py upstream-app; fi
+          python3 scripts/audit.py upstream-app --variant ${{ matrix.variant }} --report reports/source-audit.json
+      - name: Execute relocated ARM64 Box64, GLIBC and Wine (not Android desktop proof)
+        run: sudo "$(command -v python3)" scripts/native_smoke.py upstream-app --variant ${{ matrix.variant }} --report reports/native-smoke.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -39,26 +54,60 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-      - name: Install Android SDK components
-        run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;24.0.8215888' 'cmake;3.22.1'
-      - name: Compile debug APK
+      - name: Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;24.0.8215888' 'cmake;3.22.1'
+      - name: Compile application and automated device test
         working-directory: upstream-app
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleDebug --stacktrace --no-daemon
-      - name: Verify final APK manifest and identifiers
+          ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --stacktrace --no-daemon
+      - name: Audit packaged paths, native libraries, manifest and signatures
         run: |
-          APK=$(find upstream-app/app/build/outputs/apk/debug -name '*.apk' -print -quit)
-          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | head -n 5
-          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -A 2 -E 'package=|authorities|sharedUserId' || true
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose "$APK"
-          PACKAGE=$("$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | sed -n "s/^package: name='\\([^']*\\)'.*/\\1/p")
-          test "$PACKAGE" = "com.winlator.scrolltest2"
-          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q "com.winlator.scrolltest.FileProvider"
+          APK=upstream-app/app/build/outputs/apk/debug/app-debug.apk
+          python3 scripts/audit.py upstream-app --variant ${{ matrix.variant }} --apk "$APK" --report reports/apk-audit.json
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$AAPT" dump badging "$APK" > reports/badging.txt
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml > reports/manifest.txt
+          PACKAGE=com.wlscroll
+          if [ '${{ matrix.variant }}' = baseline ]; then PACKAGE=com.wlbase00; fi
+          grep -q "package: name='$PACKAGE'" reports/badging.txt
+          grep -q "$PACKAGE.FileProvider" reports/manifest.txt
+          ! grep -q 'sharedUserId' reports/manifest.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK" > reports/signature.txt
+          echo 'Compilation and ARM64 userspace smoke passed. Android install/desktop/keyboard remain UNVERIFIED until device job passes.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Winlator-11.2-${{ matrix.variant }}-evidence
+          path: reports/
       - uses: actions/upload-artifact@v4
         with:
-          name: Winlator-Scroll-debug-APK
-          path: upstream-app/app/build/outputs/apk/debug/*.apk
+          name: Winlator-11.2-${{ matrix.variant }}-APKs
+          path: |
+            upstream-app/app/build/outputs/apk/debug/*.apk
+            upstream-app/app/build/outputs/apk/androidTest/debug/*.apk
           if-no-files-found: error
+  device:
+    if: github.event_name == 'workflow_dispatch' && inputs.device_tests
+    needs: build
+    runs-on: [self-hosted, linux, ARM64, android-test]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: Winlator-11.2-scroll-APKs
+          path: artifacts
+      - name: Install and prove desktop and keyboard control on dedicated test device
+        env:
+          SERIAL: ${{ vars.WINLATOR_TEST_SERIAL }}
+        run: |
+          test -n "$SERIAL"
+          APP=$(find artifacts -name app-debug.apk -print -quit)
+          TEST=$(find artifacts -name app-debug-androidTest.apk -print -quit)
+          python3 scripts/device_smoke.py "$APP" "$TEST" --serial "$SERIAL" --aapt "$ANDROID_HOME/build-tools/35.0.0/aapt" --output device-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Android-device-evidence
+          path: device-evidence/
