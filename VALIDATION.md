@@ -35,3 +35,5 @@ Issues found by the checks and corrected before this result:
 Successful compilation is **not** a claim that this test version works on the user's tablet.
 
 CI also exposed insufficient Java heap during `compressDebugAssets`. Both variants now set a 3 GiB Gradle heap and limit worker concurrency to two; runtime and APK inputs are unchanged.
+
+Final GitHub Actions run [38236957857](https://github.com/wibem1/Winlator-Scroll/actions/runs/38236957857), source commit `4b72bb9adeb67de581843f466f487b7adbbce142`: **scroll and baseline build/audit jobs both PASS**. Both APK bundles and evidence reports are published as workflow artifacts. The optional ARM64 Android device job was skipped, so installation/desktop/IME remain UNVERIFIED. Subsequent commits only document these results.

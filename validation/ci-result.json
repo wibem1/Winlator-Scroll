@@ -1,0 +1,13 @@
+{
+  "run_id": 38236957857,
+  "source_commit": "4b72bb9adeb67de581843f466f487b7adbbce142",
+  "conclusion": "success",
+  "variants": {
+    "scroll": "success",
+    "baseline": "success"
+  },
+  "device_job": "skipped",
+  "scroll_apk_artifact": 11740553307,
+  "baseline_apk_artifact": 11741372071,
+  "windows_desktop_verified": false
+}
