@@ -1,0 +1,309 @@
+{
+  "files_checked": 3607,
+  "arm64_interpreters": [
+    {
+      "file": "assets/box64/box64-0.4.4.tzst!./usr/local/bin/box64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/bin/localedef",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/bin/locale",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/libc.so.6",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/getconf/POSIX_V6_LP64_OFF64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/getconf/POSIX_V7_LP64_OFF64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/getconf/XBS5_LP64_OFF64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    }
+  ],
+  "stale_original_paths": 0,
+  "native_dependencies": {
+    "libfile_redirect_hook.so": [
+      "libhook_impl.so",
+      "libandroid.so",
+      "libdl.so",
+      "liblog.so",
+      "libm.so",
+      "libc.so"
+    ],
+    "libgladiorenderer.so": [
+      "libwinlator.so",
+      "liblog.so",
+      "libandroid.so",
+      "libEGL.so",
+      "libGLESv2.so",
+      "libGLESv3.so",
+      "libjnigraphics.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libgsl_alloc_hook.so": [
+      "libhook_impl.so",
+      "libandroid.so",
+      "libdl.so",
+      "liblog.so",
+      "libm.so",
+      "libc.so"
+    ],
+    "libhook_impl.so": [
+      "liblog.so",
+      "libandroid.so",
+      "libdl.so",
+      "libm.so",
+      "libc.so"
+    ],
+    "libmain_hook.so": [
+      "libhook_impl.so",
+      "libandroid.so",
+      "libdl.so",
+      "liblog.so",
+      "libm.so",
+      "libc.so"
+    ],
+    "libmidihandler.so": [
+      "libFLAC.so",
+      "libfluidsynth-assetloader.so",
+      "libgio-2.0.so",
+      "libglib-2.0.so",
+      "libgmodule-2.0.so",
+      "libgobject-2.0.so",
+      "libgthread-2.0.so",
+      "libinstpatch-1.0.so",
+      "liboboe.so",
+      "libogg.so",
+      "libopus.so",
+      "libpcre.so",
+      "libpcreposix.so",
+      "libsndfile.so",
+      "libvorbis.so",
+      "libvorbisenc.so",
+      "libvorbisfile.so",
+      "libfluidsynth.so",
+      "liblog.so",
+      "libomp.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libomp.so": [
+      "libdl.so",
+      "libc.so"
+    ],
+    "libvirglrenderer.so": [
+      "libwinlator.so",
+      "liblog.so",
+      "libandroid.so",
+      "libEGL.so",
+      "libGLESv2.so",
+      "libGLESv3.so",
+      "libjnigraphics.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libvortekrenderer.so": [
+      "libwinlator.so",
+      "liblog.so",
+      "libandroid.so",
+      "libdl.so",
+      "libjnigraphics.so",
+      "libEGL.so",
+      "libGLESv2.so",
+      "libGLESv3.so",
+      "libm.so",
+      "libc.so"
+    ],
+    "libwinlator.so": [
+      "liblog.so",
+      "libandroid.so",
+      "libjnigraphics.so",
+      "libEGL.so",
+      "libGLESv2.so",
+      "libGLESv3.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libzstd-jni-1.5.2-3.so": [
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libFLAC.so": [
+      "libm.so",
+      "libogg.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libc++_shared.so": [
+      "libc.so",
+      "libm.so",
+      "libdl.so"
+    ],
+    "libfluidsynth-assetloader.so": [
+      "libfluidsynth.so",
+      "liblog.so",
+      "libandroid.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libfluidsynth.so": [
+      "libm.so",
+      "libomp.so",
+      "libglib-2.0.so",
+      "libgthread-2.0.so",
+      "libsndfile.so",
+      "libinstpatch-1.0.so",
+      "libgobject-2.0.so",
+      "liboboe.so",
+      "libandroid.so",
+      "liblog.so",
+      "libOpenSLES.so",
+      "libc++_shared.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libgio-2.0.so": [
+      "libglib-2.0.so",
+      "libgobject-2.0.so",
+      "libgmodule-2.0.so",
+      "libz.so",
+      "libc.so"
+    ],
+    "libglib-2.0.so": [
+      "libpcre.so",
+      "libm.so",
+      "libc.so"
+    ],
+    "libgmodule-2.0.so": [
+      "libglib-2.0.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libgobject-2.0.so": [
+      "libglib-2.0.so",
+      "libc.so"
+    ],
+    "libgthread-2.0.so": [
+      "libglib-2.0.so",
+      "libc.so"
+    ],
+    "libinstpatch-1.0.so": [
+      "libgobject-2.0.so",
+      "libgthread-2.0.so",
+      "libglib-2.0.so",
+      "libsndfile.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libltdl.so": [
+      "libdl.so",
+      "libc.so"
+    ],
+    "liboboe.so": [
+      "liblog.so",
+      "libOpenSLES.so",
+      "libm.so",
+      "libc++_shared.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libogg.so": [
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libopus.so": [
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libpcre.so": [
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libpcreposix.so": [
+      "libpcre.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libpulse.so": [
+      "libpulsecommon-13.0.so",
+      "libsndfile.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libpulseaudio.so": [
+      "libpulsecore-13.0.so",
+      "libpulse.so",
+      "libpulsecommon-13.0.so",
+      "libsndfile.so",
+      "libltdl.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libpulsecommon-13.0.so": [
+      "libsndfile.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libpulsecore-13.0.so": [
+      "libltdl.so",
+      "libpulse.so",
+      "libpulsecommon-13.0.so",
+      "libsndfile.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libsndfile.so": [
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libvorbis.so": [
+      "libogg.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libvorbisenc.so": [
+      "libvorbis.so",
+      "libogg.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "libvorbisfile.so": [
+      "libvorbis.so",
+      "libogg.so",
+      "libm.so",
+      "libdl.so",
+      "libc.so"
+    ]
+  },
+  "jni_inputs_byte_identical": true,
+  "apk_sha256": "7013b1357200cb61e0cffe6830aa1dd55597c8bb7b598736026eb06bba6a9c0d"
+}

@@ -1,0 +1,41 @@
+{
+  "scope": "ARM64 Linux userspace only; no Android desktop verification",
+  "negative_control": {
+    "returncode": 255,
+    "stderr": "qemu-aarch64: Could not open '/data/data/com.winlator/files/rootfs/lib/ld-linux-aarch64.so.1': No such file or directory\n"
+  },
+  "results": [
+    {
+      "command": [
+        "/workspace/scratch/f134cf5ebe12/qemu-tools/usr/bin/qemu-aarch64",
+        "/data/data/com.wlscroll/files/rootfs/usr/local/bin/box64",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "Box64 arm64 v0.4.4  with Dynarec built on Aug  3 2026 11:53:12\n"
+    },
+    {
+      "command": [
+        "/workspace/scratch/f134cf5ebe12/qemu-tools/usr/bin/qemu-aarch64",
+        "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1",
+        "--list",
+        "/data/data/com.wlscroll/files/rootfs/usr/local/bin/box64"
+      ],
+      "returncode": 0,
+      "stdout": "\tlinux-vdso.so.1 (0x0000400000810000)\n\tlibc.so.6 => /data/data/com.wlscroll/files/rootfs/usr/lib/libc.so.6 (0x0000400000820000)\n\tlibm.so.6 => /data/data/com.wlscroll/files/rootfs/usr/lib/libm.so.6 (0x00004000009d0000)\n\tlibresolv.so.2 => /data/data/com.wlscroll/files/rootfs/usr/lib/libresolv.so.2 (0x0000400000a80000)\n\t/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1 (0x00007f65914c0000)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/scratch/f134cf5ebe12/qemu-tools/usr/bin/qemu-aarch64",
+        "/data/data/com.wlscroll/files/rootfs/usr/local/bin/box64",
+        "/data/data/com.wlscroll/files/rootfs/opt/wine/bin/wine",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "wine-10.10\n",
+      "stderr": "[BOX64] Box64 arm64 v0.4.4  with Dynarec built on Aug  3 2026 11:53:12\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "android_emulator": "37.2.12",
+  "host_architecture": "x86_64",
+  "arm64_avd": {
+    "result": "BLOCKED",
+    "error": "Avd's CPU Architecture 'arm64' is not supported by the QEMU2 emulator on x86_64 host",
+    "software_mode_requested": true
+  },
+  "x86_64_avd": {
+    "result": "BOOT_TIMEOUT",
+    "timeout_seconds": 240,
+    "software_mode_requested": true,
+    "application_installation_attempted": false
+  },
+  "kvm": {
+    "result": "UNAVAILABLE",
+    "error": "KVM requires a CPU that supports vmx or svm"
+  },
+  "arm64_android_installation": "UNVERIFIED",
+  "windows_desktop": "UNVERIFIED"
+}

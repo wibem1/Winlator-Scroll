@@ -1,0 +1,12 @@
+{
+  "run_id": 38290072119,
+  "source_commit": "9371f2104649b78c2776f8eccfacdb22e0c16e8c",
+  "revision": "11.2-scroll.2",
+  "scroll_build_and_apk_audit": "PASS",
+  "baseline_build_and_apk_audit": "PASS",
+  "geometry_checks": 13,
+  "android_device_job": "SKIPPED",
+  "scroll_apk_artifact_id": 11765316585,
+  "downloaded_apk_sha256": "810f071903da64ce0dd0ddb0fbc959c2e9f1e7dccadad17a1d10c8f9c9558699",
+  "revision2_android_scroll_behavior": "UNVERIFIED"
+}
