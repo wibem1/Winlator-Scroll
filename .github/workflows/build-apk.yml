@@ -13,7 +13,6 @@ on:
       - 'overlay/**'
       - 'tests/**'
       - '.github/workflows/build-apk.yml'
-  pull_request:
 permissions:
   contents: read
 jobs:
@@ -46,7 +45,10 @@ jobs:
           if [ '${{ matrix.variant }}' = scroll ]; then python3 patch_winlator.py upstream-app; fi
           python3 scripts/audit.py upstream-app --variant ${{ matrix.variant }} --report reports/source-audit.json
       - name: Execute relocated ARM64 Box64, GLIBC and Wine (not Android desktop proof)
-        run: sudo "$(command -v python3)" scripts/native_smoke.py upstream-app --variant ${{ matrix.variant }} --report reports/native-smoke.json
+        run: |
+          sudo mkdir -p /data/data
+          sudo chown "$(id -u):$(id -g)" /data/data
+          python3 scripts/native_smoke.py upstream-app --variant ${{ matrix.variant }} --report reports/native-smoke.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

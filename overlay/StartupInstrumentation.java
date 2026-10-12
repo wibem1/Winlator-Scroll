@@ -32,9 +32,9 @@ public final class StartupInstrumentation extends Instrumentation {
         } while (SystemClock.elapsedRealtime()<limit);
         throw new IllegalStateException("Timed out: "+label);
     }
-    private boolean hasGuestWindow(Window window) {
-        if (window.isRenderable() && !window.getClassName().isEmpty()) return true;
-        for (Window child: window.getChildren()) if (hasGuestWindow(child)) return true;
+    private boolean hasDesktopWindow(Window window) {
+        if (window.isRenderable() && window.isDesktopWindow()) return true;
+        for (Window child: window.getChildren()) if (hasDesktopWindow(child)) return true;
         return false;
     }
     @Override public void onStart() {
@@ -54,8 +54,8 @@ public final class StartupInstrumentation extends Instrumentation {
             Intent intent=new Intent(getTargetContext(), XServerDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("container_id",container.id);
             XServerDisplayActivity desktop=(XServerDisplayActivity)startActivitySync(intent);
-            waitFor("renderable Windows window", () -> desktop.getXServer()!=null && hasGuestWindow(desktop.getXServer().windowManager.rootWindow), 85000);
-            result.putString("desktop", "PASS: renderable guest window detected");
+            waitFor("renderable Windows desktop window", () -> desktop.getXServer()!=null && hasDesktopWindow(desktop.getXServer().windowManager.rootWindow), 85000);
+            result.putString("desktop", "PASS: renderable Windows desktop window detected");
             // Obtain a real framebuffer image as evidence for review.
             android.graphics.Bitmap screenshot=getUiAutomation().takeScreenshot();
             if (screenshot==null) throw new IllegalStateException("No screenshot");
