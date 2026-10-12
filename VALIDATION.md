@@ -37,3 +37,11 @@ Successful compilation is **not** a claim that this test version works on the us
 CI also exposed insufficient Java heap during `compressDebugAssets`. Both variants now set a 3 GiB Gradle heap and limit worker concurrency to two; runtime and APK inputs are unchanged.
 
 Final GitHub Actions run [38236957857](https://github.com/wibem1/Winlator-Scroll/actions/runs/38236957857), source commit `4b72bb9adeb67de581843f466f487b7adbbce142`: **scroll and baseline build/audit jobs both PASS**. Both APK bundles and evidence reports are published as workflow artifacts. The optional ARM64 Android device job was skipped, so installation/desktop/IME remain UNVERIFIED. Subsequent commits only document these results.
+
+## Tablet observation and revision .2
+
+The user subsequently installed revision .1 and supplied a screenshot showing running Wine/Windows windows. This is user evidence that the previous Startup loop is overcome in that attempt. The screenshot shows a portrait-shaped guest desktop inside a landscape screen, no open IME, and Wine's missing-Gecko dialog in front of the file manager. The configured container resolution is unknown; the screenshot alone cannot prove a scrollbar detection failure.
+
+Revision .2 normalizes only `native` resolution to landscape, preserving explicitly configured resolutions. It reads Android 11+ root IME visibility and bottom insets even when `adjustNothing` keeps the surface size fixed. Thirteen executable Java checks cover portrait-to-landscape metrics, unchanged visible-frame/IME occlusion, scaled and letterboxed desktop ranges, and closed-keyboard/zero-size cases. Package `com.wlscrol2` and launcher label `Winlator 11.2 Scroll Test 2` distinguish it from revision .1. A fixed disposable debug signing key allows subsequent updates of this new test package.
+
+Revision .2 Android keyboard behavior remains unverified until observed on a suitable Android device. The Gecko browser engine is not bundled by these viewport changes.

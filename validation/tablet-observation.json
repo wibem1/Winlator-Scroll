@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-12",
+  "revision": "11.2-scroll.1",
+  "source": "user report and supplied screenshot",
+  "windows_windows_visible": true,
+  "keyboard_visible_in_screenshot": false,
+  "rendered_desktop_aspect": "portrait inside landscape host",
+  "configured_container_resolution": "unknown",
+  "gecko_missing_dialog_visible": true,
+  "revision2_changes": [
+    "normalize only native desktop dimensions to landscape",
+    "IME visibility and height from Android 11+ root insets",
+    "13 executable geometry checks",
+    "distinct Test 2 package, launcher label and stable disposable signing key"
+  ],
+  "revision2_device_behavior": "UNVERIFIED"
+}
