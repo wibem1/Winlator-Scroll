@@ -10,7 +10,7 @@ The new basis is official `brunodev85/winlator-app` commit `3981d86efa4f333b2a34
 
 ## Isolation and relocation
 
-- Scroll package: `com.wlscroll`; comparison package: `com.wlbase00`.
+- Scroll package: `com.wlscrol2`; comparison package: `com.wlbase00`.
 - Both names have exactly the original package ID's byte length. All `/data/data/com.winlator` strings are replaced, including binary strings, compressed tar members, pax link metadata, loader cache, graphics components, and JNI libraries. Binary lengths and internal offsets remain unchanged.
 - Java namespace and `Java_com_winlator_*` JNI symbols deliberately remain unchanged. These identify classes, not Android private storage.
 - FileProvider uses `${applicationId}.FileProvider` and the matching runtime context package.
@@ -48,8 +48,14 @@ python3 scripts/relocate.py upstream-app --variant scroll --report relocation.js
 python3 scripts/diagnostics.py upstream-app
 python3 patch_winlator.py upstream-app
 python3 scripts/audit.py upstream-app --report source-audit.json
-# QEMU smoke needs a disposable Linux host and permission to create /data/data/com.wlscroll.
+# QEMU smoke needs a disposable Linux host and permission to create /data/data/com.wlscrol2.
 python3 scripts/native_smoke.py upstream-app --report native-smoke.json
 ```
 
 Do not apply these scripts twice to the same source checkout. Each run starts from the pinned official commit. There is no blanket package rename, no symlink into the original installation, and no original-package build/install shortcut.
+
+## Test revision .2
+
+Native resolution now normalizes portrait display metrics into landscape dimensions before the activity rotation completes. Explicit custom resolutions remain unchanged. Android 11+ keyboard visibility/occlusion uses root IME insets, independent of surface resizing; older versions retain the visible-frame fallback. Thirteen executable Java checks cover the viewport math and portrait-to-landscape native dimensions.
+
+Revision .2 uses `com.wlscrol2` to avoid the previous ephemeral CI signing key conflict. It remains isolated from the original and from revision .1. The deliberately public disposable signing key is for this debug experiment only; subsequent .2 builds use the same key and can update this test package. No container data is migrated between test IDs.

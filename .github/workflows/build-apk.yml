@@ -13,6 +13,7 @@ on:
       - 'overlay/**'
       - 'tests/**'
       - '.github/workflows/build-apk.yml'
+      - 'test-signing-key.b64'
 permissions:
   contents: read
 jobs:
@@ -53,6 +54,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Verify native resolution and IME viewport math
+        run: |
+          mkdir -p reports/geometry-tests
+          javac -d reports/geometry-tests overlay/ViewportGeometry.java tests/ViewportGeometryTest.java
+          java -cp reports/geometry-tests ViewportGeometryTest | tee reports/geometry-test.txt
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
@@ -70,7 +76,7 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           "$AAPT" dump badging "$APK" > reports/badging.txt
           "$AAPT" dump xmltree "$APK" AndroidManifest.xml > reports/manifest.txt
-          PACKAGE=com.wlscroll
+          PACKAGE=com.wlscrol2
           if [ '${{ matrix.variant }}' = baseline ]; then PACKAGE=com.wlbase00; fi
           grep -q "package: name='$PACKAGE'" reports/badging.txt
           grep -q "$PACKAGE.FileProvider" reports/manifest.txt

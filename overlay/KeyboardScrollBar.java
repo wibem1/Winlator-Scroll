@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Build;
+import android.view.WindowInsets;
+import com.winlator.core.ViewportGeometry;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +33,14 @@ public final class KeyboardScrollBar extends View {
         setVisibility(GONE);
         parent.addView(this, new FrameLayout.LayoutParams(dp(40), 1, Gravity.TOP | Gravity.RIGHT));
         parent.getViewTreeObserver().addOnGlobalLayoutListener(this::updateKeyboardBounds);
+        // IME inset changes arrive even when adjustNothing preserves surface size.
+        if (Build.VERSION.SDK_INT >= 30) {
+            parent.setOnApplyWindowInsetsListener((view, insets) -> {
+                parent.post(this::updateKeyboardBounds);
+                return insets;
+            });
+            parent.post(parent::requestApplyInsets);
+        }
     }
 
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
@@ -39,9 +50,21 @@ public final class KeyboardScrollBar extends View {
         parent.getWindowVisibleDisplayFrame(visible);
         int[] location = new int[2];
         parent.getLocationOnScreen(location);
-        int available = Math.max(0, Math.min(parent.getHeight(), visible.bottom - location[1]));
+        boolean explicitIme = false;
+        int imeBottom = 0;
+        boolean hasImeInsets = false;
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsets insets = parent.getRootWindowInsets();
+            if (insets != null) {
+                hasImeInsets = true;
+                explicitIme = insets.isVisible(WindowInsets.Type.ime());
+                imeBottom = insets.getInsets(WindowInsets.Type.ime()).bottom;
+            }
+        }
+        int available = ViewportGeometry.availableHeight(parent.getHeight(), location[1], visible.bottom,
+                parent.getRootView().getHeight(), imeBottom, explicitIme);
         int hidden = parent.getHeight() - available;
-        boolean keyboard = hidden > parent.getRootView().getHeight() * 0.15f;
+        boolean keyboard = hasImeInsets ? explicitIme : hidden > parent.getRootView().getHeight() * 0.15f;
         renderer.setScreenOffsetYRelativeToCursor(false);
         if (!keyboard) {
             offset = 0;
@@ -55,7 +78,7 @@ public final class KeyboardScrollBar extends View {
         int top = renderer.isFullscreen() ? 0 : renderer.viewTransformation.viewOffsetY;
         int visibleDesktop = Math.max(0, Math.min(rendered, available - top));
         visibleFraction = rendered > 0 ? (float)visibleDesktop / rendered : 1f;
-        maximum = Math.max(0, Math.min(desktopHeight, Math.round(desktopHeight * (1f-visibleFraction))));
+        maximum = ViewportGeometry.maximumPan(desktopHeight, rendered, top, available);
         offset = Math.min(offset, maximum);
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)getLayoutParams();
         int height = Math.max(1, available - dp(16));

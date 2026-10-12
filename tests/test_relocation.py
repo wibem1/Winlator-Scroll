@@ -10,9 +10,9 @@ from relocate import ORIGINAL, archive, relocated
 class RelocationTests(unittest.TestCase):
     def test_binary_offsets_and_terminators(self):
         old = b'\x7fELF\x00'+ORIGINAL+b'/files/rootfs/lib/ld-linux-aarch64.so.1\x00\x01\xff'
-        result = relocated(old, 'com.wlscroll')
+        result = relocated(old, 'com.wlscrol2')
         self.assertEqual(len(old), len(result))
-        self.assertEqual(result.replace(b'/data/data/com.wlscroll', ORIGINAL), old)
+        self.assertEqual(result.replace(b'/data/data/com.wlscrol2', ORIGINAL), old)
         self.assertNotIn(ORIGINAL, result)
         with self.assertRaises(ValueError): relocated(old, 'com.winlator.scrolltest2')
         with self.assertRaises(ValueError): relocated(old, 'com.winlator')
@@ -25,12 +25,12 @@ class RelocationTests(unittest.TestCase):
             m = tarfile.TarInfo('z:'); m.type=tarfile.SYMTYPE; m.linkname=ORIGINAL.decode()+'/files/rootfs'
             m.pax_headers={'linkpath':m.linkname}; t.addfile(m)
         packed = zstandard.ZstdCompressor().compress(out.getvalue())
-        result, count = archive(packed, 'com.wlscroll')
+        result, count = archive(packed, 'com.wlscrol2')
         self.assertEqual(count, 2)
         with tarfile.open(fileobj=io.BytesIO(zstandard.ZstdDecompressor().decompress(result))) as t:
             self.assertEqual(t.getmember('box64').mode, 0o755)
-            self.assertEqual(t.getmember('z:').linkname, '/data/data/com.wlscroll/files/rootfs')
+            self.assertEqual(t.getmember('z:').linkname, '/data/data/com.wlscrol2/files/rootfs')
             self.assertNotIn(ORIGINAL, t.extractfile('box64').read())
-        self.assertEqual(archive(result, 'com.wlscroll'), (result, 0))
+        self.assertEqual(archive(result, 'com.wlscrol2'), (result, 0))
 
 if __name__=='__main__': unittest.main()

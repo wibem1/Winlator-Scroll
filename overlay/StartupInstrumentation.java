@@ -45,7 +45,7 @@ public final class StartupInstrumentation extends Instrumentation {
         Bundle result=new Bundle();
         try {
             String pkg=getTargetContext().getPackageName();
-            if (!pkg.equals("com.wlscroll") && !pkg.equals("com.wlbase00")) throw new SecurityException("Not an isolated test package");
+            if (!pkg.equals("com.wlscrol2") && !pkg.equals("com.wlbase00")) throw new SecurityException("Not an isolated test package");
             Intent main=new Intent(getTargetContext(), MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Activity activity=startActivitySync(main);
             waitFor("rootfs installation", () -> RootFS.find(getTargetContext()).isValid(), 180000);
@@ -66,7 +66,7 @@ public final class StartupInstrumentation extends Instrumentation {
             try (java.io.FileOutputStream stream=getTargetContext().openFileOutput("startup-test.png",0)) {
                 screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,stream);
             }
-            if (pkg.equals("com.wlscroll")) {
+            if (pkg.equals("com.wlscrol2")) {
                 int width=desktop.getXServerView().getWidth(), height=desktop.getXServerView().getHeight();
                 runOnMainSync(() -> AppUtils.showKeyboard(desktop));
                 waitFor("visible keyboard scrollbar", () -> {

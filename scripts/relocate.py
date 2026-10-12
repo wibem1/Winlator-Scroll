@@ -1,5 +1,6 @@
 """Relocate all runtime paths without changing binary offsets (user 0 test builds)."""
 import argparse
+import base64
 import copy
 import io
 import json
@@ -9,7 +10,7 @@ from pathlib import Path
 import zstandard
 
 ORIGINAL = b'/data/data/com.winlator'
-PACKAGES = {'scroll': 'com.wlscroll', 'baseline': 'com.wlbase00'}
+PACKAGES = {'scroll': 'com.wlscrol2', 'baseline': 'com.wlbase00'}
 UPSTREAM = '3981d86efa4f333b2a34a7da8b6521476cd8c8b9'
 
 def relocated(data, package):
@@ -65,15 +66,19 @@ def prepare(root, variant):
     utils.write_text(data.replace('"com.winlator.FileProvider"', 'activity.getPackageName()+".FileProvider"'))
     gradle = root / 'app/build.gradle'
     data = gradle.read_text().replace("applicationId 'com.winlator'", f"applicationId '{package}'")
-    data = data.replace('versionName "11.2"', f'versionName "11.2-{variant}.1"')
+    data = data.replace('versionName "11.2"', f'versionName "11.2-{variant}.2"')
     # Imported CMake libraries are the same inputs as jniLibs. Only allow these
     # known collisions; APK audit compares their bytes with the declared inputs.
     names = sorted(p.name for p in (main/'jniLibs/arm64-v8a').glob('*.so'))
     options = '\n    packagingOptions {\n        jniLibs {\n            pickFirsts += [' + ', '.join(repr('lib/arm64-v8a/'+n) for n in names) + ']\n            keepDebugSymbols += [' + ', '.join(repr('**/'+n) for n in names) + ']\n            useLegacyPackaging = true\n        }\n    }\n'
     data = data.replace("    ndkVersion '24.0.8215888'", options + "    ndkVersion '24.0.8215888'")
-    data = data.replace('        versionCode 33', '        versionCode 33001\n        testInstrumentationRunner "com.winlator.test.StartupInstrumentation"')
+    data = data.replace('        versionCode 33', '        versionCode 33002\n        testInstrumentationRunner "com.winlator.test.StartupInstrumentation"')
     # Keep reflection-based instrumentation usable and make this a diagnostic build.
     data = data.replace('minifyEnabled true', 'minifyEnabled false')
+    key=root/'test-signing.p12'
+    key.write_bytes(base64.b64decode((Path(__file__).resolve().parents[1]/'test-signing-key.b64').read_text()))
+    signing="\n    signingConfigs {\n        debug {\n            storeFile rootProject.file('test-signing.p12')\n            storePassword 'android'\n            keyAlias 'androiddebugkey'\n            keyPassword 'android'\n        }\n    }\n"
+    data=data.replace('    buildTypes {',signing+'\n    buildTypes {')
     gradle.write_text(data)
     test = root/'app/src/androidTest/java/com/winlator/test/StartupInstrumentation.java'
     test.parent.mkdir(parents=True,exist_ok=True)

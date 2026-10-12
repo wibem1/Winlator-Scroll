@@ -39,3 +39,10 @@ edit('XServerDisplayActivity.java', '        setupUI();', '''        setupUI();
         }, 90000);''')
 edit('xenvironment/components/GuestProgramLauncherComponent.java', '        envVars.put("BOX64_NOBANNER", box64Logs >= 1 ? "0" : "1");', '''        envVars.put("BOX64_NOBANNER", "0");
         envVars.put("BOX64_LOG", "1");''')
+
+edit('XServerDisplayActivity.java', '        return new ScreenInfo(width - (width % 2), height - (height % 2));', """        // Activity rotation can still be pending; native desktop is always landscape.
+        int nativeWidth = com.winlator.core.ViewportGeometry.landscapeWidth(width, height);
+        int nativeHeight = com.winlator.core.ViewportGeometry.landscapeHeight(width, height);
+        android.util.Log.i("WinlatorStartup", "NATIVE_SCREEN metrics="+width+"x"+height+" resolved="+nativeWidth+"x"+nativeHeight);
+        return new ScreenInfo(nativeWidth, nativeHeight);""")
+(src/'core/ViewportGeometry.java').write_text((Path(__file__).resolve().parents[1]/'overlay/ViewportGeometry.java').read_text())
