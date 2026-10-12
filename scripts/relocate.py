@@ -85,7 +85,7 @@ def prepare(root, variant):
     test.write_text((Path(__file__).resolve().parents[1]/'overlay/StartupInstrumentation.java').read_text())
     strings = main/'res/values/strings.xml'
     text = strings.read_text()
-    text, count = re.subn(r'(<string name="app_name">).*?(</string>)', rf'\g<1>Winlator 11.2 {variant.title()} Test\g<2>', text)
+    text, count = re.subn(r'(<string name="app_name">).*?(</string>)', rf'\g<1>Winlator 11.2 {variant.title()} Test 2\g<2>', text)
     assert count == 1
     strings.write_text(text)
     properties=root/'gradle.properties'
