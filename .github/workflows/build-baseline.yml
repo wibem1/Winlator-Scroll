@@ -1,4 +1,4 @@
-name: Build Winlator Baseline APK
+name: Diagnose Winlator Baseline Paths
 on:
   workflow_dispatch:
   push:
@@ -33,6 +33,23 @@ jobs:
           manifest.write_text(m)
           utils=Path('upstream-app/app/src/main/java/com/winlator/core/FileUtils.java')
           utils.write_text(utils.read_text().replace('com.winlator.FileProvider','com.winlator.baselinetest.FileProvider'))
+          # Native code and utility paths assume the original package ID.
+          base=Path('upstream-app/app/src/main')
+          old='/data/data/com.winlator'
+          new='/data/data/com.winlator.baselinetest'
+          touched=[]
+          for file in list((base/'cpp').rglob('*.h'))+list((base/'cpp').rglob('*.c'))+list((base/'cpp').rglob('*.cpp'))+[base/'java/com/winlator/core/AppUtils.java']:
+              text=file.read_text(errors='replace')
+              if old in text:
+                  file.write_text(text.replace(old,new))
+                  touched.append(str(file))
+          print('Adjusted hard-coded app data paths:', *touched, sep='\\n')
+          assert len(touched)>=4, 'Expected original hard-coded paths were not found'
+          remaining=[]
+          for file in (base/'cpp').rglob('*'):
+              if file.is_file() and file.suffix in ('.h','.c','.cpp','.hpp') and old in file.read_text(errors='replace'):
+                  remaining.append(str(file))
+          assert not remaining, 'Still found old native absolute paths: '+str(remaining)
           PY
       - uses: actions/setup-java@v4
         with:
