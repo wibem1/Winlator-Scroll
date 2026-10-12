@@ -1,0 +1,66 @@
+name: Build Winlator Baseline APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-baseline.yml'
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get pinned Winlator 11.2 app sources
+        run: |
+          git clone https://github.com/brunodev85/winlator-app.git upstream-app
+          cd upstream-app
+          git checkout c2f4ad4534f4637b543a9a3b085e28f50cf6d01c
+      - name: Use separate application ID
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('upstream-app/app/build.gradle')
+          s=p.read_text()
+          needle="        debug {\n"
+          assert s.count(needle)==1
+          s=s.replace(needle,needle+"            applicationIdSuffix '.baselinetest'\n",1)
+          anchor="    ndkVersion '24.0.8215888'"
+          assert s.count(anchor)==1
+          s=s.replace(anchor,"    packagingOptions {\n        pickFirst '**/*.so'\n    }\n\n"+anchor,1)
+          p.write_text(s)
+          manifest=Path('upstream-app/app/src/main/AndroidManifest.xml')
+          m=manifest.read_text().replace('com.winlator.FileProvider','com.winlator.baselinetest.FileProvider')
+          manifest.write_text(m)
+          utils=Path('upstream-app/app/src/main/java/com/winlator/core/FileUtils.java')
+          utils.write_text(utils.read_text().replace('com.winlator.FileProvider','com.winlator.baselinetest.FileProvider'))
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;24.0.8215888' 'cmake;3.22.1'
+      - name: Compile debug APK
+        working-directory: upstream-app
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+      - name: Verify final APK manifest and identifiers
+        run: |
+          APK=$(find upstream-app/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | head -n 5
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -A 2 -E 'package=|authorities|sharedUserId' || true
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose "$APK"
+          PACKAGE=$("$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | sed -n "s/^package: name='\\([^']*\\)'.*/\\1/p")
+          test "$PACKAGE" = "com.winlator.baselinetest"
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q "com.winlator.baselinetest.FileProvider"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Winlator-Baseline-debug-APK
+          path: upstream-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
