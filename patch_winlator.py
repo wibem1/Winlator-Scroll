@@ -69,3 +69,11 @@ edit(r,"        AppUtils.observeSoftKeyboardVisibility(drawerLayout, renderer::s
             if (!visible) keyboardScroll.setProgress(0);
         });""")
 print("Patched Winlator app sources")
+
+# FileProvider authority must be unique for parallel installation.
+manifest=root/"app/src/main/AndroidManifest.xml"
+ms=manifest.read_text()
+assert ms.count('android:authorities="com.winlator.FileProvider"') == 1
+manifest.write_text(ms.replace('android:authorities="com.winlator.FileProvider"', 'android:authorities="com.winlator.scrolltest.FileProvider"'))
+edit("core/FileUtils.java", '"com.winlator.FileProvider"', '"com.winlator.scrolltest.FileProvider"')
+print("Applied unique FileProvider authority for side-by-side installation")
