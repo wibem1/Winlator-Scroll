@@ -27,6 +27,9 @@ jobs:
           needle="        debug {\n"
           assert s.count(needle)==1
           s=s.replace(needle,needle+"            applicationIdSuffix '.scrolltest'\n",1)
+          anchor="    ndkVersion '24.0.8215888'"
+          assert s.count(anchor)==1
+          s=s.replace(anchor,"    packagingOptions {\n        pickFirst '**/*.so'\n    }\n\n"+anchor,1)
           p.write_text(s)
           PY
       - uses: actions/setup-java@v4
