@@ -26,7 +26,7 @@ jobs:
           s=p.read_text()
           needle="        debug {\n"
           assert s.count(needle)==1
-          s=s.replace(needle,needle+"            applicationIdSuffix '.scrolltest'\n",1)
+          s=s.replace(needle,needle+"            applicationIdSuffix '.scrolltest2'\n",1)
           anchor="    ndkVersion '24.0.8215888'"
           assert s.count(anchor)==1
           s=s.replace(anchor,"    packagingOptions {\n        pickFirst '**/*.so'\n    }\n\n"+anchor,1)
@@ -48,6 +48,15 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :app:assembleDebug --stacktrace --no-daemon
+      - name: Verify final APK manifest and identifiers
+        run: |
+          APK=$(find upstream-app/app/build/outputs/apk/debug -name '*.apk' -print -quit)
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | head -n 5
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -A 2 -E 'package=|authorities|sharedUserId' || true
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose "$APK"
+          PACKAGE=$("$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | sed -n "s/^package: name='\\([^']*\\)'.*/\\1/p")
+          test "$PACKAGE" = "com.winlator.scrolltest2"
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q "com.winlator.scrolltest.FileProvider"
       - uses: actions/upload-artifact@v4
         with:
           name: Winlator-Scroll-debug-APK
