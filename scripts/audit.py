@@ -4,6 +4,9 @@ import hashlib
 import io
 import json
 import struct
+import subprocess
+import tempfile
+import re
 import tarfile
 import zipfile
 from pathlib import Path
@@ -58,6 +61,18 @@ if __name__=='__main__':
                 assert z.read(name)==file.read_bytes(), 'Native input changed: '+name
             for file in (main/'assets').rglob('*.tzst'):
                 assert z.read('assets/'+str(file.relative_to(main/'assets')))==file.read_bytes(), 'APK archive differs: '+str(file)
+            # Validate DT_NEEDED in the actual packaged libraries, not only source inputs.
+            platform={'libEGL.so','libGLESv2.so','libGLESv3.so','libOpenSLES.so','libandroid.so','libc.so','libdl.so','libjnigraphics.so','liblog.so','libm.so','libz.so','libvulkan.so','libaaudio.so'}
+            libraries={n.rsplit('/',1)[-1]:z.read(n) for n in z.namelist() if n.startswith('lib/arm64-v8a/') and n.endswith('.so')}
+            dependencies={}
+            with tempfile.TemporaryDirectory() as temp:
+                for name,data in libraries.items():
+                    assert data[:4]==b'\x7fELF' and struct.unpack_from('<H',data,18)[0]==183, 'Non-ARM64 packaged library: '+name
+                    path=Path(temp)/name;path.write_bytes(data)
+                    needed=re.findall(r'Shared library: \[(.*?)\]',subprocess.check_output(['readelf','-d',str(path)],text=True))
+                    assert not (set(needed)-set(libraries)-platform), 'Missing DT_NEEDED dependency: '+name+': '+str(needed)
+                    dependencies[name]=needed
+            result['native_dependencies']=dependencies
             result['jni_inputs_byte_identical']=True
             result['apk_sha256']=hashlib.sha256(a.apk.read_bytes()).hexdigest()
     else:

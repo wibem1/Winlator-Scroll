@@ -69,7 +69,7 @@ def prepare(root, variant):
     # Imported CMake libraries are the same inputs as jniLibs. Only allow these
     # known collisions; APK audit compares their bytes with the declared inputs.
     names = sorted(p.name for p in (main/'jniLibs/arm64-v8a').glob('*.so'))
-    options = '\n    packagingOptions {\n        jniLibs {\n            pickFirsts += [' + ', '.join(repr('lib/arm64-v8a/'+n) for n in names) + ']\n        }\n    }\n'
+    options = '\n    packagingOptions {\n        jniLibs {\n            pickFirsts += [' + ', '.join(repr('lib/arm64-v8a/'+n) for n in names) + ']\n            keepDebugSymbols += [' + ', '.join(repr('**/'+n) for n in names) + ']\n            useLegacyPackaging = true\n        }\n    }\n'
     data = data.replace("    ndkVersion '24.0.8215888'", options + "    ndkVersion '24.0.8215888'")
     data = data.replace('        versionCode 33', '        versionCode 33001\n        testInstrumentationRunner "com.winlator.test.StartupInstrumentation"')
     # Keep reflection-based instrumentation usable and make this a diagnostic build.

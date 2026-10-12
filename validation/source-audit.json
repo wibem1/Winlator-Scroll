@@ -1,0 +1,34 @@
+{
+  "files_checked": 4411,
+  "arm64_interpreters": [
+    {
+      "file": "assets/rootfs.tzst!./usr/bin/localedef",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/bin/locale",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/libc.so.6",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/getconf/POSIX_V6_LP64_OFF64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/getconf/POSIX_V7_LP64_OFF64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/rootfs.tzst!./usr/lib/getconf/XBS5_LP64_OFF64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    },
+    {
+      "file": "assets/box64/box64-0.4.4.tzst!./usr/local/bin/box64",
+      "interpreter": "/data/data/com.wlscroll/files/rootfs/lib/ld-linux-aarch64.so.1"
+    }
+  ],
+  "stale_original_paths": 0
+}

@@ -71,15 +71,21 @@ public final class StartupInstrumentation extends Instrumentation {
                     return visible.get();
                 },10000);
                 if (width!=desktop.getXServerView().getWidth() || height!=desktop.getXServerView().getHeight()) throw new IllegalStateException("IME resized the desktop");
+                int[] bounds=new int[4];
                 runOnMainSync(() -> {
                     View bar=desktop.getWindow().getDecorView().findViewWithTag("keyboard-scrollbar");
-                    long now=SystemClock.uptimeMillis();
-                    MotionEvent down=MotionEvent.obtain(now,now,MotionEvent.ACTION_DOWN,bar.getWidth()/2f,bar.getHeight()-1f,0);
-                    bar.dispatchTouchEvent(down);down.recycle();
-                    MotionEvent up=MotionEvent.obtain(now,now+20,MotionEvent.ACTION_UP,bar.getWidth()/2f,bar.getHeight()-1f,0);
-                    bar.dispatchTouchEvent(up);up.recycle();
+                    bar.getLocationOnScreen(bounds);bounds[2]=bar.getWidth();bounds[3]=bar.getHeight();
+                    android.graphics.Rect visible=new android.graphics.Rect();
+                    bar.getWindowVisibleDisplayFrame(visible);
+                    if (!visible.contains(bounds[0],bounds[1],bounds[0]+bounds[2],bounds[1]+bounds[3])) throw new IllegalStateException("Scrollbar is obscured by keyboard");
                 });
-                if (desktop.getXServerView().getRenderer().getKeyboardPanY()<=0) throw new IllegalStateException("Scrollbar did not move viewport");
+                long now=SystemClock.uptimeMillis();
+                float x=bounds[0]+bounds[2]/2f,y=bounds[1]+bounds[3]-2f;
+                MotionEvent down=MotionEvent.obtain(now,now,MotionEvent.ACTION_DOWN,x,y,0);
+                sendPointerSync(down);down.recycle();
+                MotionEvent up=MotionEvent.obtain(now,now+20,MotionEvent.ACTION_UP,x,y,0);
+                sendPointerSync(up);up.recycle();
+                waitFor("touch moved viewport", () -> desktop.getXServerView().getRenderer().getKeyboardPanY()>0,5000);
                 runOnMainSync(() -> ((InputMethodManager)desktop.getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(desktop.getWindow().getDecorView().getWindowToken(),0));
                 waitFor("viewport reset after IME close", () -> desktop.getXServerView().getRenderer().getKeyboardPanY()==0,10000);
                 result.putString("scroll", "PASS: IME, control input, offset, fixed desktop size and reset");

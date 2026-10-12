@@ -28,13 +28,13 @@ try:
         call(['shell','pm','grant',package,'android.permission.'+permission])
     run=call(['shell','am','instrument','-w',package+'.test/com.winlator.test.StartupInstrumentation'],check=False,timeout=330)
     (a.output/'instrumentation.txt').write_text(run)
-    # Do not clear global logcat or stop/uninstall the original application.
-    (a.output/'startup-logcat.txt').write_text(call(['logcat','-d','-v','threadtime','WinlatorStartup:I','WinlatorGuest:I','WinlatorStartupTest:I','*:S']))
     image=subprocess.run(adb+['exec-out','run-as',package,'cat','files/startup-test.png'],capture_output=True)
     if image.returncode==0: (a.output/'startup-test.png').write_bytes(image.stdout)
     assert 'result=PASS' in run and 'desktop=PASS:' in run, 'No successful Windows desktop proof; inspect instrumentation and logcat'
     if a.variant=='scroll': assert 'scroll=PASS:' in run, 'No scrollbar proof'
 finally:
+    # Preserve evidence even after instrumentation/installation timeout.
+    (a.output/'startup-logcat.txt').write_text(call(['logcat','-d','-v','threadtime','WinlatorStartup:I','WinlatorGuest:I','WinlatorStartupTest:I','*:S'],check=False))
     # Stop only the disposable test application, also after a timeout.
     call(['shell','am','force-stop',package],check=False)
     original_after=call(['shell','dumpsys','package','com.winlator'])

@@ -18,7 +18,7 @@ The new basis is official `brunodev85/winlator-app` commit `3981d86efa4f333b2a34
 - Absolute native paths currently support **Android user 0 only**. Work profiles and secondary users are not supported. Imported/downloaded Wine or graphics components have not been relocated and must not be used in these tests.
 - No write, clear, uninstall or force-stop operation targets the original package. The device script refuses pre-existing test installations and compares the original package registration before/after.
 
-The old wildcard `pickFirst '**/*.so'` is removed. Only explicitly named upstream JNI input files may be deduplicated. The APK audit requires their packaged bytes to equal the input bytes, including `libc++_shared.so`; a conflicting runtime fails verification rather than silently becoming a test APK.
+The old wildcard `pickFirst '**/*.so'` is removed. Only explicitly named upstream JNI input files may be deduplicated. The APK audit requires their packaged bytes to equal the input bytes, including `libc++_shared.so`. Debug-symbol stripping is disabled for these exact files; a conflicting runtime fails verification rather than silently becoming a test APK.
 
 ## Scroll behavior and startup diagnostics
 
