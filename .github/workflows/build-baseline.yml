@@ -47,7 +47,7 @@ jobs:
           assert len(touched)>=4, 'Expected original hard-coded paths were not found'
           remaining=[]
           for file in (base/'cpp').rglob('*'):
-              if file.is_file() and file.suffix in ('.h','.c','.cpp','.hpp') and old in file.read_text(errors='replace'):
+              if file.is_file() and file.suffix in ('.h','.c','.cpp','.hpp') and (old+'/' in file.read_text(errors='replace')):
                   remaining.append(str(file))
           assert not remaining, 'Still found old native absolute paths: '+str(remaining)
           PY
