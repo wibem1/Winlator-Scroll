@@ -37,6 +37,10 @@ public final class StartupInstrumentation extends Instrumentation {
         for (Window child: window.getChildren()) if (hasDesktopWindow(child)) return true;
         return false;
     }
+    private int pan(XServerDisplayActivity desktop) throws Exception {
+        Object renderer=desktop.getXServerView().getRenderer();
+        return ((Number)renderer.getClass().getMethod("getKeyboardPanY").invoke(renderer)).intValue();
+    }
     @Override public void onStart() {
         Bundle result=new Bundle();
         try {
@@ -85,9 +89,9 @@ public final class StartupInstrumentation extends Instrumentation {
                 sendPointerSync(down);down.recycle();
                 MotionEvent up=MotionEvent.obtain(now,now+20,MotionEvent.ACTION_UP,x,y,0);
                 sendPointerSync(up);up.recycle();
-                waitFor("touch moved viewport", () -> desktop.getXServerView().getRenderer().getKeyboardPanY()>0,5000);
+                waitFor("touch moved viewport", () -> pan(desktop)>0,5000);
                 runOnMainSync(() -> ((InputMethodManager)desktop.getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(desktop.getWindow().getDecorView().getWindowToken(),0));
-                waitFor("viewport reset after IME close", () -> desktop.getXServerView().getRenderer().getKeyboardPanY()==0,10000);
+                waitFor("viewport reset after IME close", () -> pan(desktop)==0,10000);
                 result.putString("scroll", "PASS: IME, control input, offset, fixed desktop size and reset");
             }
             runOnMainSync(desktop::finish);

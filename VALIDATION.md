@@ -19,6 +19,8 @@
 
 Local audited APK SHA-256: `7013b1357200cb61e0cffe6830aa1dd55597c8bb7b598736026eb06bba6a9c0d`. CI APK hashes can differ because debug signing and build paths differ. Machine-readable local results are in `validation/`.
 
+The installed Android Emulator 37.2.12 was probed with an Android 35 ARM64 AVD and software acceleration explicitly selected. It refused to start: `Avd's CPU Architecture 'arm64' is not supported by the QEMU2 emulator on x86_64 host`. KVM acceleration is unavailable as well.
+
 No Android tablet test has been requested. No original installation has been changed. The isolated test IDs and authority checks block installation over `com.winlator`. A dedicated ARM64/user-0 Android runner is required for the remaining automated installation/desktop/IME checks.
 
 Issues found by the checks and corrected before this result:

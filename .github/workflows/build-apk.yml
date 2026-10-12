@@ -104,6 +104,7 @@ jobs:
         env:
           SERIAL: ${{ vars.WINLATOR_TEST_SERIAL }}
         run: |
+          python3 -m pip install zstandard==0.25.0
           test -n "$SERIAL"
           APP=$(find artifacts -name app-debug.apk -print -quit)
           TEST=$(find artifacts -name app-debug-androidTest.apk -print -quit)
