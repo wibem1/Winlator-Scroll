@@ -33,3 +33,5 @@ Issues found by the checks and corrected before this result:
 - Gradle debug-symbol stripping altered supplied native files; explicit per-file preservation now allows exact packaged-input verification.
 
 Successful compilation is **not** a claim that this test version works on the user's tablet.
+
+CI also exposed insufficient Java heap during `compressDebugAssets`. Both variants now set a 3 GiB Gradle heap and limit worker concurrency to two; runtime and APK inputs are unchanged.

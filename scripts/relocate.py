@@ -83,6 +83,8 @@ def prepare(root, variant):
     text, count = re.subn(r'(<string name="app_name">).*?(</string>)', rf'\g<1>Winlator 11.2 {variant.title()} Test\g<2>', text)
     assert count == 1
     strings.write_text(text)
+    properties=root/'gradle.properties'
+    properties.write_text(properties.read_text()+"\norg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=512m\norg.gradle.workers.max=2\n")
     return report
 
 if __name__ == '__main__':
