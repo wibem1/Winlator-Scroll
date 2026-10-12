@@ -1,0 +1,50 @@
+name: Build Winlator Scroll APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'patch_winlator.py'
+      - '.github/workflows/build-apk.yml'
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get pinned Winlator 11.2 app sources
+        run: |
+          git clone https://github.com/brunodev85/winlator-app.git upstream-app
+          cd upstream-app
+          git checkout c2f4ad4534f4637b543a9a3b085e28f50cf6d01c
+      - name: Apply experimental patch
+        run: python3 patch_winlator.py upstream-app
+      - name: Use separate application ID
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('upstream-app/app/build.gradle')
+          s=p.read_text()
+          needle="        debug {\n"
+          assert s.count(needle)==1
+          s=s.replace(needle,needle+"            applicationIdSuffix '.scrolltest'\n",1)
+          p.write_text(s)
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;24.0.8215888' 'cmake;3.22.1'
+      - name: Compile debug APK
+        working-directory: upstream-app
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Winlator-Scroll-debug-APK
+          path: upstream-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
